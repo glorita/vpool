@@ -12,20 +12,26 @@
 */
 
     $router->get('/', function () use ($router) {
-    return $router->app->version();
+        return "Voucher Pool by Gloris";
+
+    //return $router->app->version();
     });
 
     $router->group(['prefix' => 'api'], function () use ($router) {
         
-    $router->get('vouchers',  ['uses' => 'VoucherController@index']);
+   // $router->get('vouchers',  ['uses' => 'VoucherController@index']);
 
     $router->get('vouchers/{id}', ['uses' => 'VoucherController@voucherFind']);
     
     $router->post('vouchers/{id_offer}/{date}', ['uses' => 'VoucherController@voucherGenerate']);
     
-    $router->get('vouchers/{code}/{mail}', ['uses' => 'VoucherController@voucherValidate']);
+    $router->get('vouchers/{code}/{email}', ['uses' => 'VoucherController@voucherValidate']);
 
- 
+    
+ //   $router->get('vouchers/{code}/{id_recip}', ['uses' => 'VoucherController@voucherValidate']);
+
+
+    
 });
     
     
