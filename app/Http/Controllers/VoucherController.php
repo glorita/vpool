@@ -9,12 +9,14 @@
 namespace App\Http\Controllers;
 
 
+
+
 use App\Voucher;
 use App\Recipient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\RecipientController;
-
+use Illuminate\Support\Carbon;
 
 class VoucherController extends Controller
 {
@@ -36,17 +38,11 @@ class VoucherController extends Controller
       
   
     }
+
+      /*
+     * Get the voucher by ID
+     */
     
-    public function voucherValidate($code,$mail){
-        
-        $Voucher = $this->voucherByCode($code);
-        //$Recipient = new Recipient;
-        $rec = Recipient::recipientBymail($mail);
-                
-    
-        
-        return response()->json(['Validated'=>$rec]);
-    }
     public function voucherFind($id){
   
         $Voucher  = Voucher::find($id);
@@ -62,6 +58,7 @@ class VoucherController extends Controller
   
         return response()->json($Voucher);
     }
+   
     /*
      * Generate vouchers
      */
@@ -81,4 +78,43 @@ class VoucherController extends Controller
         
         return response()->json(['Generated Vouchers'=>$count]);
     }
+    
+    
+        
+    public function voucherValidate($code,$email){
+        
+        $varia = str_replace("%81", ".", $email);
+       
+        $reg = DB::select('SELECT vouchers.id,vouchers.code, vouchers.expires,offers.percent '
+                . 'FROM vouchers JOIN recipients '
+                . 'on recipients.id = vouchers.id_recip '
+                . 'JOIN offers on offers.id = vouchers.id_offer'
+                . ' WHERE vouchers.code =? AND recipients.email ="'.$varia.'"',[$code]);
+   
+        if ($reg){
+            foreach($reg as $vouch){
+                 
+                 $voucher_u=$this->voucherUpdate($vouch->id);
+                 return response()->json(['Percentage Discount'=>$vouch->percent]);
+            }
+            
+           
+        }
+        else return response()->json(['This code and email combination is not valid']);
+    }
+     
+    /*
+     * Set the voucher date of usage
+     */
+    public function voucherUpdate($id){
+              $now = Carbon::now();
+              $voucher = Voucher::find($id);
+              $voucher->used = TRUE;
+              $voucher->used_on =$now->format('d-m-Y');
+              $voucher->save();
+              
+        return response()->json($voucher);
+     }
+     
+    
 }
