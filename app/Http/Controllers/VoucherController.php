@@ -77,7 +77,9 @@ class VoucherController extends Controller
         
         return response()->json(['Generated Vouchers'=>$count]);
     }
-    
+    /*
+     * Validate voucher given a code and an email
+     */
     
         
     public function voucherValidate($code,$email){
