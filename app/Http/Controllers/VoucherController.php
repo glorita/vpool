@@ -15,7 +15,6 @@ use App\Voucher;
 use App\Recipient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Http\Controllers\RecipientController;
 use Illuminate\Support\Carbon;
 
 class VoucherController extends Controller
@@ -39,7 +38,7 @@ class VoucherController extends Controller
   
     }
 
-      /*
+     /*
      * Get the voucher by ID
      */
     
@@ -110,11 +109,28 @@ class VoucherController extends Controller
               $now = Carbon::now();
               $voucher = Voucher::find($id);
               $voucher->used = TRUE;
-              $voucher->used_on =$now->format('d-m-Y');
+              $voucher->used_on =$now->format('d.m.Y');
               $voucher->save();
               
         return response()->json($voucher);
      }
-     
-    
+     /*
+     * Shows the vouchers availables given an email
+     */
+     public function voucherVouchersava($email){
+        
+        $varia = str_replace("%81", ".", $email);
+       
+        $reg = DB::select('SELECT offers.name '
+                . 'FROM vouchers JOIN recipients '
+                . 'on recipients.id = vouchers.id_recip '
+                . 'JOIN offers on offers.id = vouchers.id_offer'
+                . ' WHERE recipients.email ="'.$varia.'"');
+   
+        if ($reg){
+          
+             return response()->json(['Available Vouchers:'=>$reg]);
+        }
+        else return response()->json(['This email has not  availables vouchers']);
+    }
 }
